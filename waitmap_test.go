@@ -27,11 +27,14 @@ func TestWaitMap(t *testing.T) {
 		m.Set("foo", "bar")
 	})
 
-	t.Run("Set Set and Get", func(t *testing.T) {
+	t.Run("Set Set Get and Get", func(t *testing.T) {
 		m := New[string, string]()
 		m.Set("foo", "bar")
 		m.Set("foo", "baz")
 		want := "baz"
+		if got := m.Get("foo"); got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
 		if got := m.Get("foo"); got != want {
 			t.Errorf("got %v, want %v", got, want)
 		}
