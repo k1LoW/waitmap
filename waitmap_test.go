@@ -24,10 +24,6 @@ func TestWaitMap(t *testing.T) {
 				t.Errorf("got %v, want %v", got, want)
 			}
 		}()
-		v, ok := m.TryGet("foo")
-		if ok {
-			t.Errorf("got %v, want %v", v, nil)
-		}
 		time.Sleep(100 * time.Millisecond)
 		m.Set("foo", "bar")
 	})
@@ -90,6 +86,25 @@ func TestWaitMap(t *testing.T) {
 		time.Sleep(100 * time.Millisecond)
 		m.Set("foo", "baz")
 	})
+}
+
+func TestTryGet(t *testing.T) {
+	m := New[string, string]()
+	v, ok := m.TryGet("foo")
+	if ok {
+		t.Errorf("got %v, want %v", v, nil)
+	}
+	m.Set("foo", "bar")
+	{
+		v, ok := m.TryGet("foo")
+		if !ok {
+			t.Errorf("got %v, want %v", v, nil)
+		}
+		want := "bar"
+		if got := v; got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
+	}
 }
 
 func TestKeys(t *testing.T) {
