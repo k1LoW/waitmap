@@ -42,11 +42,6 @@ func (m *waitMap[K, V]) Get(k K) V {
 func (m *waitMap[K, V]) TryGet(k K) (V, bool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	lock, ok := m.lockmap[k]
-	if !ok {
-		lock = sync.NewCond(&m.mu)
-		m.lockmap[k] = lock
-	}
 	v, ok := m.valmap[k]
 	return v, ok
 }
