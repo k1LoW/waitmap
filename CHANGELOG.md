@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.0.1](https://github.com/k1LoW/waitmap/compare/v1.0.0...v1.0.1) - 2024-07-09
+### Other Changes
+- Add LICENSE by @k1LoW in https://github.com/k1LoW/waitmap/pull/6
+
 ## [v1.0.0](https://github.com/k1LoW/waitmap/compare/v0.1.1...v1.0.0) - 2024-07-09
 ### New Features 🎉
 - Add TryGet method to waitMap by @k1LoW in https://github.com/k1LoW/waitmap/pull/5
