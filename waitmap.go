@@ -3,7 +3,7 @@ package waitmap
 import "sync"
 
 type waitMap[K comparable, V any] struct {
-	lockmap map[K]chan struct{}
+	lockmap map[K]*sync.Cond
 	valmap  map[K]V
 	mu      sync.Mutex
 }
@@ -11,7 +11,7 @@ type waitMap[K comparable, V any] struct {
 // New creates a new waitMap.
 func New[K comparable, V any]() *waitMap[K, V] {
 	return &waitMap[K, V]{
-		lockmap: make(map[K]chan struct{}),
+		lockmap: make(map[K]*sync.Cond),
 		valmap:  make(map[K]V),
 	}
 }
@@ -22,18 +22,19 @@ func (m *waitMap[K, V]) Get(k K) V {
 	m.mu.Lock()
 	lock, ok := m.lockmap[k]
 	if !ok {
-		lock = make(chan struct{})
+		lock = sync.NewCond(&m.mu)
 		m.lockmap[k] = lock
 	}
 	m.mu.Unlock()
-	<-lock
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	v, ok := m.valmap[k]
-	if !ok {
-		panic("key not found. this is a bug in the code.")
+	for {
+		m.mu.Lock()
+		if v, ok := m.valmap[k]; ok {
+			m.mu.Unlock()
+			return v
+		}
+		lock.Wait()
+		m.mu.Unlock()
 	}
-	return v
 }
 
 // Set sets the value associated with the key k.
@@ -42,19 +43,11 @@ func (m *waitMap[K, V]) Set(k K, v V) {
 	defer m.mu.Unlock()
 	lock, ok := m.lockmap[k]
 	if !ok {
-		lock = make(chan struct{})
+		lock = sync.NewCond(&m.mu)
 		m.lockmap[k] = lock
 	}
-	var locked bool
-	select {
-	case _, locked = <-lock:
-	default:
-		locked = true
-	}
 	m.valmap[k] = v
-	if locked {
-		close(lock)
-	}
+	lock.Broadcast()
 }
 
 // Delete deletes the value associated with the key k.
@@ -63,14 +56,8 @@ func (m *waitMap[K, V]) Delete(k K) {
 	defer m.mu.Unlock()
 	lock, ok := m.lockmap[k]
 	if ok {
+		lock.Broadcast()
 		delete(m.lockmap, k)
-		select {
-		case _, locked := <-lock:
-			if locked {
-				close(lock)
-			}
-		default:
-		}
 	}
 	delete(m.valmap, k)
 }
