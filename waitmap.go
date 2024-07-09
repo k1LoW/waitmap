@@ -8,6 +8,7 @@ type waitMap[K comparable, V any] struct {
 	mu      sync.Mutex
 }
 
+// New creates a new waitMap.
 func New[K comparable, V any]() *waitMap[K, V] {
 	return &waitMap[K, V]{
 		lockmap: make(map[K]chan struct{}),
@@ -15,6 +16,8 @@ func New[K comparable, V any]() *waitMap[K, V] {
 	}
 }
 
+// Get returns the value associated with the key k.
+// If the key does not exist, Get blocks until the key is set.
 func (m *waitMap[K, V]) Get(k K) V {
 	m.mu.Lock()
 	lock, ok := m.lockmap[k]
@@ -33,6 +36,7 @@ func (m *waitMap[K, V]) Get(k K) V {
 	return v
 }
 
+// Set sets the value associated with the key k.
 func (m *waitMap[K, V]) Set(k K, v V) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -53,6 +57,7 @@ func (m *waitMap[K, V]) Set(k K, v V) {
 	}
 }
 
+// Delete deletes the value associated with the key k.
 func (m *waitMap[K, V]) Delete(k K) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
