@@ -23,6 +23,10 @@ func TestWaitMap(t *testing.T) {
 				t.Errorf("got %v, want %v", got, want)
 			}
 		}()
+		v, ok := m.TryGet("foo")
+		if ok {
+			t.Errorf("got %v, want %v", v, nil)
+		}
 		time.Sleep(100 * time.Millisecond)
 		m.Set("foo", "bar")
 	})
