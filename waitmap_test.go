@@ -1,6 +1,7 @@
 package waitmap
 
 import (
+	"slices"
 	"testing"
 	"time"
 )
@@ -89,4 +90,20 @@ func TestWaitMap(t *testing.T) {
 		time.Sleep(100 * time.Millisecond)
 		m.Set("foo", "baz")
 	})
+}
+
+func TestKeys(t *testing.T) {
+	m := New[string, string]()
+	m.Set("foo", "bar")
+	m.Set("baz", "qux")
+	want := []string{"foo", "baz"}
+	got := m.Keys()
+	if len(got) != len(want) {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	for _, v := range got {
+		if !slices.Contains(want, v) {
+			t.Errorf("got %v, want %v", got, want)
+		}
+	}
 }
