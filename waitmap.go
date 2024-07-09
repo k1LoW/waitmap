@@ -2,33 +2,33 @@ package waitmap
 
 import "sync"
 
-type waitMap[K comparable, V any] struct {
+type WaitMap[K comparable, V any] struct {
 	lockmap map[K]*sync.Cond
 	valmap  map[K]V
 	mu      sync.Mutex
 }
 
-// New creates a new waitMap.
-func New[K comparable, V any]() *waitMap[K, V] {
-	return &waitMap[K, V]{
-		lockmap: make(map[K]*sync.Cond),
-		valmap:  make(map[K]V),
+// New creates a new WaitMap.
+func New[K comparable, V any]() *WaitMap[K, V] {
+	return &WaitMap[K, V]{
+		lockmap: map[K]*sync.Cond{},
+		valmap:  map[K]V{},
 	}
 }
 
-// Get returns the value associated with the key k.
+// Get returns the value associated with the key.
 // If the key does not exist, Get blocks until the key is set.
-func (m *waitMap[K, V]) Get(k K) V {
+func (m *WaitMap[K, V]) Get(key K) V {
 	m.mu.Lock()
-	lock, ok := m.lockmap[k]
+	lock, ok := m.lockmap[key]
 	if !ok {
 		lock = sync.NewCond(&m.mu)
-		m.lockmap[k] = lock
+		m.lockmap[key] = lock
 	}
 	m.mu.Unlock()
 	for {
 		m.mu.Lock()
-		if v, ok := m.valmap[k]; ok {
+		if v, ok := m.valmap[key]; ok {
 			m.mu.Unlock()
 			return v
 		}
@@ -37,36 +37,36 @@ func (m *waitMap[K, V]) Get(k K) V {
 	}
 }
 
-// TryGet returns the value associated with the key k.
+// TryGet returns the value associated with the key.
 // If the key does not exist, TryGet returns (zero value, false).
-func (m *waitMap[K, V]) TryGet(k K) (V, bool) {
+func (m *WaitMap[K, V]) TryGet(key K) (V, bool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	v, ok := m.valmap[k]
+	v, ok := m.valmap[key]
 	return v, ok
 }
 
-// Set sets the value associated with the key k.
-func (m *waitMap[K, V]) Set(k K, v V) {
+// Set sets the value associated with the key.
+func (m *WaitMap[K, V]) Set(key K, value V) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	lock, ok := m.lockmap[k]
+	lock, ok := m.lockmap[key]
 	if !ok {
 		lock = sync.NewCond(&m.mu)
-		m.lockmap[k] = lock
+		m.lockmap[key] = lock
 	}
-	m.valmap[k] = v
+	m.valmap[key] = value
 	lock.Broadcast()
 }
 
-// Delete deletes the value associated with the key k.
-func (m *waitMap[K, V]) Delete(k K) {
+// Delete deletes the value associated with the key.
+func (m *WaitMap[K, V]) Delete(key K) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	lock, ok := m.lockmap[k]
+	lock, ok := m.lockmap[key]
 	if ok {
 		lock.Broadcast()
-		delete(m.lockmap, k)
+		delete(m.lockmap, key)
 	}
-	delete(m.valmap, k)
+	delete(m.valmap, key)
 }
