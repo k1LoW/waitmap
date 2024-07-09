@@ -70,3 +70,14 @@ func (m *WaitMap[K, V]) Delete(key K) {
 	}
 	delete(m.valmap, key)
 }
+
+// Keys returns the keys in the WaitMap.
+func (m *WaitMap[K, V]) Keys() []K {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	keys := make([]K, 0, len(m.valmap))
+	for k := range m.valmap {
+		keys = append(keys, k)
+	}
+	return keys
+}
