@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.2.0](https://github.com/k1LoW/waitmap/compare/v1.1.0...v1.2.0) - 2024-07-10
+### New Features 🎉
+- Add Chan() for waiting using select{} by @k1LoW in https://github.com/k1LoW/waitmap/pull/12
+
 ## [v1.1.0](https://github.com/k1LoW/waitmap/compare/v1.0.1...v1.1.0) - 2024-07-09
 ### New Features 🎉
 - Add Keys() by @k1LoW in https://github.com/k1LoW/waitmap/pull/10
