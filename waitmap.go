@@ -81,3 +81,15 @@ func (m *WaitMap[K, V]) Keys() []K {
 	}
 	return keys
 }
+
+// Chan returns a channel that receives the value associated with the key.
+// If the key does not exist, the channel blocks until the key is set.
+// Also, the channel is closed after sending the value.
+func (m *WaitMap[K, V]) Chan(key K) <-chan V {
+	ch := make(chan V)
+	go func() {
+		ch <- m.Get(key)
+		close(ch)
+	}()
+	return ch
+}
