@@ -122,3 +122,30 @@ func TestKeys(t *testing.T) {
 		}
 	}
 }
+
+func TestChan(t *testing.T) {
+	m := New[string, string]()
+	done := make(chan struct{})
+
+	go func() {
+		select {
+		case got := <-m.Chan("foo"):
+			want := "bar"
+			if got != want {
+				t.Errorf("got %v, want %v", got, want)
+			}
+			close(done)
+		case <-time.After(100 * time.Millisecond):
+		}
+	}()
+
+	time.Sleep(100 * time.Millisecond)
+	m.Set("foo", "bar")
+
+	got := <-m.Chan("foo")
+	want := "bar"
+	if got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	<-done
+}
