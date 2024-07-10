@@ -128,14 +128,17 @@ func TestChan(t *testing.T) {
 	done := make(chan struct{})
 
 	go func() {
-		select {
-		case got := <-m.Chan("foo"):
-			want := "bar"
-			if got != want {
-				t.Errorf("got %v, want %v", got, want)
+		for {
+			select {
+			case got := <-m.Chan("foo"):
+				want := "bar"
+				if got != want {
+					t.Errorf("got %v, want %v", got, want)
+				}
+				close(done)
+				return
+			case <-time.After(100 * time.Millisecond):
 			}
-			close(done)
-		case <-time.After(100 * time.Millisecond):
 		}
 	}()
 
