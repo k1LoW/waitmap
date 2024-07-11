@@ -93,6 +93,7 @@ func TestWaitMap(t *testing.T) {
 		m := New[string, string]()
 		sg := sync.WaitGroup{}
 		for _, k := range keys {
+			k := k
 			sg.Add(1)
 			go func() {
 				want := "ok"
