@@ -2,6 +2,7 @@ package waitmap
 
 import (
 	"slices"
+	"sync"
 	"testing"
 	"time"
 )
@@ -85,6 +86,26 @@ func TestWaitMap(t *testing.T) {
 		}()
 		time.Sleep(100 * time.Millisecond)
 		m.Set("foo", "baz")
+	})
+
+	t.Run("Multi Get and Set", func(t *testing.T) {
+		keys := []string{"foo", "bar", "baz"}
+		m := New[string, string]()
+		want := "ok"
+		sg := sync.WaitGroup{}
+		for _, k := range keys {
+			sg.Add(1)
+			go func() {
+				if got := m.Get(k); got != want {
+					t.Errorf("got %v, want %v", got, want)
+				}
+				sg.Done()
+			}()
+		}
+		for _, k := range keys {
+			m.Set(k, want)
+		}
+		sg.Wait()
 	})
 }
 
