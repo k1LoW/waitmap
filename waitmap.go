@@ -32,8 +32,8 @@ func (m *WaitMap[K, V]) Get(key K) V {
 			m.mu.Unlock()
 			return v
 		}
-		m.mu.Unlock()
 		lock.Wait()
+		m.mu.Unlock()
 	}
 }
 
