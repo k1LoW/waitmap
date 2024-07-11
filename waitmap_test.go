@@ -103,7 +103,7 @@ func TestWaitMap(t *testing.T) {
 			}()
 		}
 		for _, k := range keys {
-			m.Set(k, want)
+			m.Set(k, "ok")
 		}
 		sg.Wait()
 	})
