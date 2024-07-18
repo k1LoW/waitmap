@@ -115,6 +115,7 @@ func (m *WaitMap[K, V]) Chan(key K) <-chan V {
 }
 
 // Close WaitMap.
+// If closed, [Get] returns zero value immediately.
 func (m *WaitMap[K, V]) Close() {
 	m.mu.Lock()
 	m.closed = true
