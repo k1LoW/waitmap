@@ -6,6 +6,7 @@ type WaitMap[K comparable, V any] struct {
 	lockmap map[K]*sync.Cond
 	valmap  map[K]V
 	mu      sync.Mutex
+	closed  bool
 }
 
 // New creates a new WaitMap.
@@ -20,6 +21,10 @@ func New[K comparable, V any]() *WaitMap[K, V] {
 // If the key does not exist, Get blocks until the key is set.
 func (m *WaitMap[K, V]) Get(key K) V {
 	m.mu.Lock()
+	if m.closed {
+		m.mu.Unlock()
+		return m.zero()
+	}
 	lock, ok := m.lockmap[key]
 	if !ok {
 		lock = sync.NewCond(&m.mu)
@@ -31,6 +36,9 @@ func (m *WaitMap[K, V]) Get(key K) V {
 		if v, ok := m.valmap[key]; ok {
 			m.mu.Unlock()
 			return v
+		} else if m.closed {
+			m.mu.Unlock()
+			return m.zero()
 		}
 		lock.Wait()
 		m.mu.Unlock()
@@ -42,6 +50,9 @@ func (m *WaitMap[K, V]) Get(key K) V {
 func (m *WaitMap[K, V]) TryGet(key K) (V, bool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	if m.closed {
+		return m.zero(), true
+	}
 	v, ok := m.valmap[key]
 	return v, ok
 }
@@ -50,6 +61,9 @@ func (m *WaitMap[K, V]) TryGet(key K) (V, bool) {
 func (m *WaitMap[K, V]) Set(key K, value V) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	if m.closed {
+		return
+	}
 	lock, ok := m.lockmap[key]
 	if !ok {
 		lock = sync.NewCond(&m.mu)
@@ -63,6 +77,9 @@ func (m *WaitMap[K, V]) Set(key K, value V) {
 func (m *WaitMap[K, V]) Delete(key K) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	if m.closed {
+		return
+	}
 	lock, ok := m.lockmap[key]
 	if ok {
 		lock.Broadcast()
@@ -75,6 +92,9 @@ func (m *WaitMap[K, V]) Delete(key K) {
 func (m *WaitMap[K, V]) Keys() []K {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	if m.closed {
+		return nil
+	}
 	keys := make([]K, 0, len(m.valmap))
 	for k := range m.valmap {
 		keys = append(keys, k)
@@ -92,4 +112,30 @@ func (m *WaitMap[K, V]) Chan(key K) <-chan V {
 		close(ch)
 	}()
 	return ch
+}
+
+// Close WaitMap.
+// If closed, [Get] returns zero value immediately.
+func (m *WaitMap[K, V]) Close() {
+	m.mu.Lock()
+	m.closed = true
+	for key, lock := range m.lockmap {
+		m.valmap[key] = m.zero()
+		lock.Broadcast()
+	}
+	m.lockmap = map[K]*sync.Cond{}
+	m.valmap = map[K]V{}
+	m.mu.Unlock()
+}
+
+// Closed returns true if WaitMap is closed.
+func (m *WaitMap[K, V]) Closed() bool {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return m.closed
+}
+
+func (m *WaitMap[K, V]) zero() V {
+	var z V
+	return z
 }
