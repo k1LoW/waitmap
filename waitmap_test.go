@@ -108,6 +108,37 @@ func TestWaitMap(t *testing.T) {
 		}
 		sg.Wait()
 	})
+
+	t.Run("Get and Delete", func(t *testing.T) {
+		m := New[string, string]()
+		done := make(chan struct{})
+		go func() {
+			select {
+			case <-m.Chan("foo"):
+				t.Error("got signal, want none")
+			case <-done:
+			}
+		}()
+		time.Sleep(100 * time.Millisecond)
+		m.Delete("foo")
+		time.Sleep(100 * time.Millisecond)
+		done <- struct{}{}
+	})
+
+	t.Run("Get and Close", func(t *testing.T) {
+		m := New[string, string]()
+		done := make(chan struct{})
+		go func() {
+			v := m.Get("foo")
+			if v != "" {
+				t.Errorf("got %v, want %v", v, "")
+			}
+			close(done)
+		}()
+		time.Sleep(100 * time.Millisecond)
+		m.Close()
+		<-done
+	})
 }
 
 func TestTryGet(t *testing.T) {
