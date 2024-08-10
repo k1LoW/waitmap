@@ -19,13 +19,13 @@ prerelease:
 	git pull origin main --tag
 	go mod tidy
 	ghch -w -N ${VER}
-	gocredits . w
-	git add CHANGELOG.md CREDITS go.mod go.sum
+	gocredits -w .
+	git add CHANGELOG.md CREDITS go.mod
 	git commit -m'Bump up version number'
 	git tag ${VER}
 
-prerelease_for_tagpr:
-	gocredits . -w
-	git add CHANGELOG.md CREDITS go.mod go.sum
+prerelease_for_tagpr: depsdev
+	gocredits -w .
+	git add CHANGELOG.md CREDITS go.mod
 
 .PHONY: default test

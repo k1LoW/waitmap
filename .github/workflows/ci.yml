@@ -30,7 +30,7 @@ jobs:
 
       - name: Check oldstable
         uses: k1LoW/oldstable@v1
-          
+
       - name: Run tests
         run: make ci
 
