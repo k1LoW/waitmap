@@ -73,6 +73,25 @@ func (m *WaitMap[K, V]) Set(key K, value V) {
 	lock.Broadcast()
 }
 
+// TrySet sets the value associated with the key.
+// If the value is already set, TrySet returns false and does nothing.
+func (m *WaitMap[K, V]) TrySet(key K, value V) bool {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.closed {
+		return false
+	}
+	_, ok := m.lockmap[key]
+	if ok {
+		return false
+	}
+	lock := sync.NewCond(&m.mu)
+	m.lockmap[key] = lock
+	m.valmap[key] = value
+	lock.Broadcast()
+	return true
+}
+
 // Delete deletes the value associated with the key.
 func (m *WaitMap[K, V]) Delete(key K) {
 	m.mu.Lock()
