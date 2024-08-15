@@ -1,5 +1,11 @@
 # Changelog
 
+## [v1.4.0](https://github.com/k1LoW/waitmap/compare/v1.3.0...v1.4.0) - 2024-08-15
+### New Features 🎉
+- Add TrySet by @k1LoW in https://github.com/k1LoW/waitmap/pull/16
+### Other Changes
+- Update go version by @k1LoW in https://github.com/k1LoW/waitmap/pull/17
+
 ## [v1.3.0](https://github.com/k1LoW/waitmap/compare/v1.2.0...v1.3.0) - 2024-07-18
 ### New Features 🎉
 - Add `Close` and `Closed` by @k1LoW in https://github.com/k1LoW/waitmap/pull/14
