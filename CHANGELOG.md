@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.4.1](https://github.com/k1LoW/waitmap/compare/v1.4.0...v1.4.1) - 2024-08-15
+### Fix bug 🐛
+- Fix TrySet by @k1LoW in https://github.com/k1LoW/waitmap/pull/18
+
 ## [v1.4.0](https://github.com/k1LoW/waitmap/compare/v1.3.0...v1.4.0) - 2024-08-15
 ### New Features 🎉
 - Add TrySet by @k1LoW in https://github.com/k1LoW/waitmap/pull/16
