@@ -160,6 +160,28 @@ func TestTryGet(t *testing.T) {
 	}
 }
 
+func TestTrySet(t *testing.T) {
+	m := New[string, string]()
+	ok := m.TrySet("foo", "bar")
+	if !ok {
+		t.Errorf("got %v, want %v", ok, true)
+	}
+	got := m.Get("foo")
+	if want := "bar"; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	{
+		ok := m.TrySet("foo", "baz")
+		if ok {
+			t.Errorf("got %v, want %v", ok, false)
+		}
+		got := m.Get("foo")
+		if want := "bar"; got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
+	}
+}
+
 func TestKeys(t *testing.T) {
 	m := New[string, string]()
 	m.Set("foo", "bar")
