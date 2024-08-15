@@ -81,12 +81,15 @@ func (m *WaitMap[K, V]) TrySet(key K, value V) bool {
 	if m.closed {
 		return false
 	}
-	_, ok := m.lockmap[key]
+	_, ok := m.valmap[key]
 	if ok {
 		return false
 	}
-	lock := sync.NewCond(&m.mu)
-	m.lockmap[key] = lock
+	lock, ok := m.lockmap[key]
+	if !ok {
+		lock = sync.NewCond(&m.mu)
+		m.lockmap[key] = lock
+	}
 	m.valmap[key] = value
 	lock.Broadcast()
 	return true
