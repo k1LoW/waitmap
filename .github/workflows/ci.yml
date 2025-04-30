@@ -25,12 +25,13 @@ jobs:
       - name: Run lint
         uses: reviewdog/action-golangci-lint@v2
         with:
+          fail_level: warning
           go_version_file: go.mod
-          fail_on_error: true
-          golangci_lint_flags: --timeout=5m
 
       - name: Check oldstable
         uses: k1LoW/oldstable@v1
+        with:
+          lax: true
 
       - name: Run tests
         run: make ci
