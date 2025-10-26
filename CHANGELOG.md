@@ -1,5 +1,11 @@
 # Changelog
 
+## [v1.4.3](https://github.com/k1LoW/waitmap/compare/v1.4.2...v1.4.3) - 2025-10-26
+### Other Changes
+- chore(deps): bump the dependencies group across 1 directory with 2 updates by @dependabot[bot] in https://github.com/k1LoW/waitmap/pull/22
+- chore: setup tagpr labels by @k1LoW in https://github.com/k1LoW/waitmap/pull/24
+- chore(deps): bump k1LoW/oldstable from 1 to 2 in the dependencies group by @dependabot[bot] in https://github.com/k1LoW/waitmap/pull/26
+
 ## [v1.4.2](https://github.com/k1LoW/waitmap/compare/v1.4.1...v1.4.2) - 2025-04-30
 
 ## [v1.4.1](https://github.com/k1LoW/waitmap/compare/v1.4.0...v1.4.1) - 2024-08-15
