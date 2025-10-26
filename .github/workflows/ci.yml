@@ -29,7 +29,7 @@ jobs:
           go_version_file: go.mod
 
       - name: Check oldstable
-        uses: k1LoW/oldstable@v1
+        uses: k1LoW/oldstable@v2
         with:
           lax: true
 
